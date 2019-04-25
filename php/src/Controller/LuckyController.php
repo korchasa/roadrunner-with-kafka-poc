@@ -11,7 +11,7 @@ class LuckyController
         $rpc = new \Spiral\Goridge\RPC($relay);
 
         $t = microtime(true);
-        $resp = $rpc->call('custom.Hello', 'world');
+        $resp = $rpc->call('kafka.Produce', 'world');
         return new JsonResponse([
             'number' => random_int(0, 100),
             'time' => microtime(true) - $t,

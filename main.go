@@ -19,7 +19,7 @@ func main() {
 	rr.Container.Register(rpc.ID, &rpc.Service{})
 	rr.Container.Register(http.ID, &http.Service{})
 	rr.Container.Register(static.ID, &static.Service{})
-	rr.Container.Register(ID, &Service{})
+	rr.Container.Register(CustomServiceID, &CustomService{})
 
 	rr.Logger.Formatter = &logrus.TextFormatter{ForceColors: true}
 

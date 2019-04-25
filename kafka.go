@@ -1,33 +1,57 @@
 package main
 
 import "github.com/spiral/roadrunner/service/rpc"
+import "github.com/spiral/roadrunner/service"
+import "fmt"
 
-const ID = "roadrunner_symfony_kafka_example"
+const CustomServiceID = "custom"
 
-type Service struct{
+// CustomConfig for service
+type CustomConfig struct {
+	Brokers string
+	Topic   string
+	Ack     uint
 }
 
-func(s *Service) Init(r *rpc.Service) (ok bool, err error) {
-	err 	= r.Register("custom", &rpcService{})
+// Hydrate config instance from .rr.* content
+func (c *CustomConfig) Hydrate(cfg service.Config) error {
+	return cfg.Unmarshal(&c)
+}
+
+// CustomService
+type CustomService struct {
+}
+
+// Init service
+func (s *CustomService) Init(r *rpc.Service, cfg *CustomConfig) (ok bool, err error) {
+	err = r.Register("kafka", &kafkaService{
+		brokers: cfg.Brokers,
+		topic:   cfg.Topic,
+		ack:     cfg.Ack,
+	})
 	if err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func(s *Service) Serve() error {
+// Serve to start kafka service
+func (s *CustomService) Serve() error {
 	return nil
 }
 
-func(s *Service) Stop() {
+// Stop kafka service
+func (s *CustomService) Stop() {
 	return
 }
 
-type rpcService struct {
-
+type kafkaService struct {
+	brokers string
+	topic   string
+	ack     uint
 }
 
-func (s *rpcService) Hello(input string, output *string) error {
-	*output = input
+func (s *kafkaService) Produce(message string, output *string) error {
+	*output = fmt.Sprintf("brokers: %s, topic: %s, ack: %d, message: %s", s.brokers, s.topic, s.ack, message)
 	return nil
 }
