@@ -1,0 +1,14 @@
+env:
+  APP_ENV: dev
+http:
+  address: :8080
+  workers:
+    command: "php ./php/public/worker.php"
+    pool:
+      numWorkers: 4
+# rpc bus allows php application and external clients to talk to rr services.
+rpc:
+  # enable rpc server
+  enable: true
+  # rpc connection DSN. Supported TCP and Unix sockets.
+  listen: tcp://127.0.0.1:6001
