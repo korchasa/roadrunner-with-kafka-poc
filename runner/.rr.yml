@@ -3,7 +3,7 @@ env:
 http:
   address: :8080
   workers:
-    command: "php ../php/public/worker.php"
+    command: "php ./php/worker.php"
     pool:
       numWorkers: 4
 
@@ -18,4 +18,3 @@ custom:
   brokers: "kafka:9092"
   topic: "test"
   ack: 0
-

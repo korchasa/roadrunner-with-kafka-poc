@@ -3,9 +3,14 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class LuckyController
+class DefaultController
 {
-    public function number()
+    public function healthz()
+    {
+        return new JsonResponse(["ok" => true]);
+    }
+
+    public function lucky()
     {
         $relay = new \Spiral\Goridge\SocketRelay("127.0.0.1", 6001);
         $rpc = new \Spiral\Goridge\RPC($relay);
