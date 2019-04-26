@@ -38,6 +38,7 @@ func (s *CustomService) Init(r *rpc.Service, cfg *CustomConfig) (ok bool, err er
 	s.KafkaWriter = kafka.NewWriter(kafka.WriterConfig{
 		Brokers: brokerList,
 		Topic:   cfg.Topic,
+		Async:   true,
 	})
 
 	err = r.Register("kafka", &kafkaService{
