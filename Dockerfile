@@ -19,8 +19,7 @@ RUN apk add --no-cache --virtual .php-fpm \
         php7 php7-phar php7-openssl php7-zlib php7-ctype \
         php7-mbstring php7-json php7-xml php7-dom php7-iconv \
         php7-curl php7-tokenizer php7-xmlwriter php7-simplexml \
-        php7-sockets php7-bcmath php7-opcache gettext && \
-    apk add php7-rdkafka --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+        php7-sockets php7-bcmath php7-opcache gettext wrk curl
 WORKDIR /app
 COPY --from=builder /build/runner .
 COPY ./php ./php
