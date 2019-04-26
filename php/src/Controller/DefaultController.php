@@ -10,7 +10,7 @@ class DefaultController
         return new JsonResponse(["ok" => true]);
     }
 
-    public function lucky()
+    public function number()
     {
         $relay = new \Spiral\Goridge\SocketRelay("127.0.0.1", 6001);
         $rpc = new \Spiral\Goridge\RPC($relay);
