@@ -1,11 +1,12 @@
 env:
-  APP_ENV: dev
+  APP_ENV: prod
 http:
   address: :8080
   workers:
     command: "php ./php/worker.php"
     pool:
-      numWorkers: 4
+      numWorkers: 2
+      destroyTimeout: 3
 
 # rpc bus allows php application and external clients to talk to rr services.
 rpc:
