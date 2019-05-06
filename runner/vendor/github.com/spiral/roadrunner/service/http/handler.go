@@ -5,6 +5,7 @@ import (
 	"github.com/spiral/roadrunner"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -62,7 +63,7 @@ type Handler struct {
 	lsn func(event int, ctx interface{})
 }
 
-// Listen attaches handler event watcher.
+// Listen attaches handler event controller.
 func (h *Handler) Listen(l func(event int, ctx interface{})) {
 	h.mul.Lock()
 	defer h.mul.Unlock()
@@ -75,12 +76,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	// validating request size
-	if h.cfg.MaxRequest != 0 {
+	if h.cfg.MaxRequestSize != 0 {
 		if length := r.Header.Get("content-length"); length != "" {
 			if size, err := strconv.ParseInt(length, 10, 64); err != nil {
 				h.handleError(w, r, err, start)
 				return
-			} else if size > h.cfg.MaxRequest*1024*1024 {
+			} else if size > h.cfg.MaxRequestSize*1024*1024 {
 				h.handleError(w, r, errors.New("request body max size is exceeded"), start)
 				return
 			}
@@ -92,6 +93,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.handleError(w, r, err, start)
 		return
 	}
+
+	// proxy IP resolution
+	h.resolveIP(req)
 
 	req.Open()
 	defer req.Close()
@@ -138,5 +142,26 @@ func (h *Handler) throw(event int, ctx interface{}) {
 
 	if h.lsn != nil {
 		h.lsn(event, ctx)
+	}
+}
+
+// get real ip passing multiple proxy
+func (h *Handler) resolveIP(r *Request) {
+	if !h.cfg.IsTrusted(r.RemoteAddr) {
+		return
+	}
+
+	if r.Header.Get("X-Forwarded-For") != "" {
+		for _, addr := range strings.Split(r.Header.Get("X-Forwarded-For"), ",") {
+			addr = strings.TrimSpace(addr)
+			if h.cfg.IsTrusted(addr) {
+				r.RemoteAddr = addr
+			}
+		}
+		return
+	}
+
+	if r.Header.Get("X-Real-Ip") != "" {
+		r.RemoteAddr = fetchIP(r.Header.Get("X-Real-Ip"))
 	}
 }

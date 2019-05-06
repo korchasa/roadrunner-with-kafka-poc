@@ -41,7 +41,7 @@ func reloadHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer client.Close()
 
-	util.Printf("<green>restarting http worker pool</reset>: ")
+	util.Printf("<green>Restarting http worker pool</reset>: ")
 
 	var r string
 	if err := client.Call("http.Reset", true, &r); err != nil {

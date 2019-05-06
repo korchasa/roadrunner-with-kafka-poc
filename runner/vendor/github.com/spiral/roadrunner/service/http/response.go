@@ -12,14 +12,14 @@ type Response struct {
 	// Status contains response status.
 	Status int `json:"status"`
 
-	// Headers contains list of response headers.
+	// Header contains list of response headers.
 	Headers map[string][]string `json:"headers"`
 
 	// associated body payload.
 	body interface{}
 }
 
-// NewResponse creates new response based on given roadrunner payload.
+// NewResponse creates new response based on given rr payload.
 func NewResponse(p *roadrunner.Payload) (*Response, error) {
 	r := &Response{body: p.Body}
 	if err := json.Unmarshal(p.Context, r); err != nil {

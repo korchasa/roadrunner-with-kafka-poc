@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	reg      *regexp.Regexp
-	Colorize bool
+	reg *regexp.Regexp
+
+	// Colorize enables colors support.
+	Colorize = true
 )
 
 func init() {

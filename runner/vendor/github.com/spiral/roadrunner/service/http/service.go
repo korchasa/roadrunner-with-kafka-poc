@@ -27,15 +27,21 @@ type middleware func(f http.HandlerFunc) http.HandlerFunc
 
 // Service manages rr, http servers.
 type Service struct {
-	cfg     *Config
-	env     env.Environment
-	lsns    []func(event int, ctx interface{})
-	mdwr    []middleware
-	mu      sync.Mutex
-	rr      *roadrunner.Server
-	handler *Handler
-	http    *http.Server
-	https   *http.Server
+	cfg        *Config
+	env        env.Environment
+	lsns       []func(event int, ctx interface{})
+	mdwr       []middleware
+	mu         sync.Mutex
+	rr         *roadrunner.Server
+	controller roadrunner.Controller
+	handler    *Handler
+	http       *http.Server
+	https      *http.Server
+}
+
+// Attach attaches controller. Currently only one controller is supported.
+func (s *Service) Attach(w roadrunner.Controller) {
+	s.controller = w
 }
 
 // AddMiddleware adds new net/http mdwr.
@@ -43,7 +49,7 @@ func (s *Service) AddMiddleware(m middleware) {
 	s.mdwr = append(s.mdwr, m)
 }
 
-// AddListener attaches server event watcher.
+// AddListener attaches server event controller.
 func (s *Service) AddListener(l func(event int, ctx interface{})) {
 	s.lsns = append(s.lsns, l)
 }
@@ -53,6 +59,7 @@ func (s *Service) AddListener(l func(event int, ctx interface{})) {
 func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (bool, error) {
 	s.cfg = cfg
 	s.env = e
+
 	if r != nil {
 		if err := r.Register(ID, &rpcServer{s}); err != nil {
 			return false, err
@@ -76,6 +83,10 @@ func (s *Service) Serve() error {
 
 	s.rr = roadrunner.NewServer(s.cfg.Workers)
 	s.rr.Listen(s.throw)
+
+	if s.controller != nil {
+		s.rr.Attach(s.controller)
+	}
 
 	s.handler = &Handler{cfg: s.cfg, rr: s.rr}
 	s.handler.Listen(s.throw)
@@ -102,7 +113,7 @@ func (s *Service) Serve() error {
 	return <-err
 }
 
-// Stop stops the svc.
+// Stop stops the http.
 func (s *Service) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -115,6 +126,14 @@ func (s *Service) Stop() {
 	}
 
 	go s.http.Shutdown(context.Background())
+}
+
+// Server returns associated rr server (if any).
+func (s *Service) Server() *roadrunner.Server {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.rr
 }
 
 // ServeHTTP handles connection using set of middleware and rr PSR-7 server.

@@ -1,14 +1,28 @@
+# github.com/DataDog/zstd v1.3.6-0.20190409195224-796139022798
+github.com/DataDog/zstd
+# github.com/Shopify/sarama v1.22.1
+github.com/Shopify/sarama
 # github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f
 github.com/StackExchange/wmi
 # github.com/buger/goterm v0.0.0-20180423150900-6d19e6a8df12
 github.com/buger/goterm
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
 # github.com/dustin/go-humanize v1.0.0
 github.com/dustin/go-humanize
+# github.com/eapache/go-resiliency v1.1.0
+github.com/eapache/go-resiliency/breaker
+# github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21
+github.com/eapache/go-xerial-snappy
+# github.com/eapache/queue v1.1.0
+github.com/eapache/queue
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
 # github.com/go-ole/go-ole v1.2.1
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
+# github.com/golang/snappy v0.0.1
+github.com/golang/snappy
 # github.com/hashicorp/hcl v1.0.0
 github.com/hashicorp/hcl
 github.com/hashicorp/hcl/hcl/printer
@@ -40,10 +54,13 @@ github.com/mitchellh/mapstructure
 github.com/olekukonko/tablewriter
 # github.com/pelletier/go-toml v1.2.0
 github.com/pelletier/go-toml
+# github.com/pierrec/lz4 v2.0.5+incompatible
+github.com/pierrec/lz4
+github.com/pierrec/lz4/internal/xxh32
 # github.com/pkg/errors v0.8.0
 github.com/pkg/errors
-# github.com/segmentio/kafka-go v0.2.2
-github.com/segmentio/kafka-go
+# github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
+github.com/rcrowley/go-metrics
 # github.com/shirou/gopsutil v2.17.12+incompatible
 github.com/shirou/gopsutil/process
 github.com/shirou/gopsutil/cpu
@@ -70,7 +87,7 @@ github.com/spf13/pflag
 github.com/spf13/viper
 # github.com/spiral/goridge v2.1.3+incompatible
 github.com/spiral/goridge
-# github.com/spiral/roadrunner v1.3.7
+# github.com/spiral/roadrunner v1.4.0
 github.com/spiral/roadrunner/cmd/rr/cmd
 github.com/spiral/roadrunner/cmd/rr/http
 github.com/spiral/roadrunner/service
@@ -79,6 +96,7 @@ github.com/spiral/roadrunner/service/http
 github.com/spiral/roadrunner/service/rpc
 github.com/spiral/roadrunner/service/static
 github.com/spiral/roadrunner/cmd/util
+github.com/spiral/roadrunner/service/limit
 github.com/spiral/roadrunner
 github.com/spiral/roadrunner/service/http/attributes
 github.com/spiral/roadrunner/util
@@ -86,7 +104,9 @@ github.com/spiral/roadrunner/osutil
 # golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+golang.org/x/net/proxy
 golang.org/x/net/http2
+golang.org/x/net/internal/socks
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna

@@ -12,7 +12,7 @@ func LogEvent(logger *logrus.Logger, event int, ctx interface{}) bool {
 	case roadrunner.EventWorkerKill:
 		w := ctx.(*roadrunner.Worker)
 		logger.Warning(Sprintf(
-			"<white+hb>worker.%v</reset> <yellow>killed</red>",
+			"<white+hb>worker.%v</reset> <yellow>killed</reset>",
 			*w.Pid,
 		))
 		return true

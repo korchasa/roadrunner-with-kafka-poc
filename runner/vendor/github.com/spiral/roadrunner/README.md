@@ -16,43 +16,10 @@ It supports running as a service with the ability to extend its functionality on
 
 RoadRunner includes PSR-7/PSR-17 compatible HTTP and HTTP/2 server and can be used to replace classic Nginx+FPM setup with much greater performance and flexibility.
 
-Table of Contents 
------------------
-* Introduction
-  * [About RoadRunner](https://github.com/spiral/roadrunner/wiki/About-RoadRunner)
-  * [Installation](https://github.com/spiral/roadrunner/wiki/Installation)
-  * [Quick Builds](https://github.com/spiral/roadrunner/wiki/Quick-Builds)
-  * [Configuration](https://github.com/spiral/roadrunner/wiki/Configuration)
-  * [License](https://github.com/spiral/roadrunner/wiki/License)
-* Using RoadRunner
-  * [Environment Configuration](https://github.com/spiral/roadrunner/wiki/Enviroment-Configuration)
-  * [HTTPS and HTTP/2](https://github.com/spiral/roadrunner/wiki/HTTPS-and-HTTP2)
-  * [**PHP Workers**](https://github.com/spiral/roadrunner/wiki/PHP-Workers)
-  * [Caveats](https://github.com/spiral/roadrunner/wiki/Caveats)
-  * [Debugging](https://github.com/spiral/roadrunner/wiki/Debugging)
-  * [Server Commands](https://github.com/spiral/roadrunner/wiki/Server-Commands)
-  * [RPC Integration](https://github.com/spiral/roadrunner/wiki/RPC-Integration)
-  * [Restarting Workers](https://github.com/spiral/roadrunner/wiki/Restarting-Workers)
-  * [IDE integration](https://github.com/spiral/roadrunner/wiki/IDE-Integration)
-  * [Error Handling](https://github.com/spiral/roadrunner/wiki/Debug-And-Error-Handling)
-  * [Production Usage](https://github.com/spiral/roadrunner/wiki/Production-Usage)
-* Integrations
-   * [Laravel Framework](https://github.com/spiral/roadrunner/wiki/Laravel-Framework)
-   * [Slim Framework](https://github.com/spiral/roadrunner/issues/62)
-   * [Symfony Framework](https://github.com/spiral/roadrunner/wiki/Symfony-Framework) ([linked issue](https://github.com/spiral/roadrunner/issues/18))
-   * [Yii2/3 Framework](https://github.com/spiral/roadrunner/issues/78) (in progress)
-   * [CakePHP](https://github.com/CakeDC/cakephp-roadrunner)
-   * [Other Examples](https://github.com/spiral/roadrunner/wiki/Other-Examples) 
-* Server Customization
-  * [Building Server](https://github.com/spiral/roadrunner/wiki/Building-Server)
-  * [Writing Services](https://github.com/spiral/roadrunner/wiki/Writing-Services)
-  * [HTTP Middlewares](https://github.com/spiral/roadrunner/wiki/Middlewares)
-* Additional Notes
-  * [Event Listeners](https://github.com/spiral/roadrunner/wiki/Event-Listeners)
-  * [Standalone Usage](https://github.com/spiral/roadrunner/wiki/Standalone-usage)
-  * [AWS Lambda](https://github.com/spiral/roadrunner/wiki/AWS-Lambda)
-* Custom Builds
-  * [GRPC Server](https://github.com/spiral/php-grpc)
+<p align="center">
+	<a href="https://roadrunner.dev/"><b>Official Website</b></a> | 
+	<a href="https://roadrunner.dev/docs"><b>Documentation</b></a>
+</p>
 
 Features:
 --------
@@ -66,11 +33,15 @@ Features:
 - frontend agnostic ([Queue](https://github.com/spiral/jobs), PSR-7, [GRPC](https://github.com/spiral/php-grpc), etc)
 - works over TCP, unix sockets and standard pipes
 - automatic worker replacement and safe PHP process destruction
-- worker lifecycle management (create/allocate/destroy timeouts)
+- worker create/allocate/destroy timeouts
+- max jobs per worker
+- worker lifecycle management (controller) 
+    - maxMemory (graceful stop)
+    - TTL (graceful stop)
+    - idleTTL (graceful stop)
+    - execTTL (brute, max_execution_time)   
 - payload context and body
-- control over max jobs per worker
 - protocol, worker and job level error management (including PHP errors)
-- memory leak failswitch
 - very fast (~250k rpc calls per second on Ryzen 1700X using 16 threads)
 - works on Windows
 
@@ -97,7 +68,7 @@ while ($req = $psr7->acceptRequest()) {
 }
 ```
 
-Configuration can be located in `.rr.yaml` file:
+Configuration can be located in `.rr.yaml` file ([full sample](https://github.com/spiral/roadrunner/blob/master/.rr.yaml)):
 
 ```yaml
 http:

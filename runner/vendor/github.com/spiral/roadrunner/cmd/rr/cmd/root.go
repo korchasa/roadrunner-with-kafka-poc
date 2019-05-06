@@ -25,10 +25,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spiral/roadrunner/cmd/util"
 	"github.com/spiral/roadrunner/service"
+	"github.com/spiral/roadrunner/service/limit"
 	"os"
 )
 
-// Service bus for all the commands.
+// Services bus for all the commands.
 var (
 	cfgFile, workDir, logFormat string
 	override                    []string
@@ -51,7 +52,7 @@ var (
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		Short: util.Sprintf(
-			"<green>RoadRunner, PHP Application Server:</reset>\nVersion: <yellow+hb>%s</reset>, %s",
+			"<green>RoadRunner</reset>, PHP Application Server\nVersion: <yellow+hb>%s</reset>, %s",
 			Version,
 			BuildTime,
 		),
@@ -106,10 +107,21 @@ func init() {
 			util.Printf("<red+hb>Error:</reset> <red>%s</reset>\n", err)
 			os.Exit(1)
 		}
+
+		// global watcher config
+		if Verbose {
+			wcv, _ := Container.Get(limit.ID)
+			if wcv, ok := wcv.(*limit.Service); ok {
+				wcv.AddListener(func(event int, ctx interface{}) {
+					util.LogEvent(Logger, event, ctx)
+				})
+			}
+		}
 	})
 }
 
 func configureLogger(format string) {
+	util.Colorize = false
 	switch format {
 	case "color", "default":
 		util.Colorize = true

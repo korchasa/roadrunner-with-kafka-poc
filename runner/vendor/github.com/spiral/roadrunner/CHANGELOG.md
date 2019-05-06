@@ -1,6 +1,34 @@
 CHANGELOG
 =========
 
+v1.4.0 (05.05.2019)
+-------------------
+- launch of official website https://roadrunner.dev/
+- ENV variables in configs (automatic RR_ mapping and manual definition using "${ENV_NAME}" value)
+- the ability to safely remove the worker from the pool in runtime
+- minor performance improvements
+- `real ip` resolution using X-Real-Ip and X-Forwarded-For (+cidr verification) 
+- automatic worker lifecycle manager (controller, see [sample config](https://github.com/spiral/roadrunner/blob/master/.rr.yaml))
+   - maxMemory (graceful stop)
+   - ttl (graceful stop)
+   - idleTTL (graceful stop)
+   - execTTL (brute, max_execution_time)   
+- the ability to stop rr using `rr stop`
+- `maxRequest` option has been deprecated in favor of `maxRequestSize`
+- `/vendor/bin/rr get` to download rr server binary (symfony/console) by @Alex-Bond
+- `/vendor/bin/rr init` to init rr config by @Alex-Bond
+- quick builds are no longer supported
+- PSR-12
+- strict_types=1 added to all php files
+
+v1.3.7 (21.03.2019)
+-------------------
+- bugfix: Request field ordering with same names #136 
+
+v1.3.6 (21.03.2019)
+-------------------
+- bugfix: pool did not wait for slow workers to complete while running concurrent load with http:reset command being invoked
+
 v1.3.5 (14.02.2019)
 -------------------
 - new console flag `l` to define log formatting
