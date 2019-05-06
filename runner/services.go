@@ -10,37 +10,41 @@ import (
 	"github.com/spiral/roadrunner/service/rpc"
 	"strings"
 	"time"
+	"log"
+	"os"
 )
 
 //CustomServiceID _
 const CustomServiceID = "custom"
-const MaxFails = 10
+//MaxFails before service return error
+const MaxFails = 100
 
 // CustomConfig for service
-type KafkaConfig struct {
+type CustomConfig struct {
 	Brokers string
 	Topic   string
 	Ack     uint
 }
 
 // Hydrate config instance from .rr.* content
-func (c *KafkaConfig) Hydrate(cfg service.Config) error {
+func (c *CustomConfig) Hydrate(cfg service.Config) error {
 	return cfg.Unmarshal(&c)
 }
 
 // CustomService _
-type KafkaService struct {
+type CustomService struct {
 	topic    string
 	brokers  []string
 	producer sarama.AsyncProducer
 	errors []error
+	successCount int
 	Logger   *logrus.Logger
 }
 
 // Init service
-func (s *KafkaService) Init(r *rpc.Service, cfg *KafkaConfig) (ok bool, err error) {
+func (s *CustomService) Init(r *rpc.Service, cfg *CustomConfig) (ok bool, err error) {
 
-	sarama.Logger = s.Logger
+	// sarama.Logger = s.Logger
 
 	s.brokers = strings.Split(cfg.Brokers, ",")
 	s.Logger.Printf("Kafka brokers: %s", strings.Join(s.brokers, ", "))
@@ -56,33 +60,41 @@ func (s *KafkaService) Init(r *rpc.Service, cfg *KafkaConfig) (ok bool, err erro
 }
 
 // Serve to start kafka service
-func (s *KafkaService) Serve() error {
+func (s *CustomService) Serve() error {
 	config := sarama.NewConfig()
+	config.ClientID = CustomServiceID
 	config.Net.KeepAlive = 10 * time.Second
-	config.Producer.RequiredAcks = sarama.WaitForLocal       // Only wait for the leader to ack
-	config.Producer.Compression = sarama.CompressionSnappy   // Compress messages
-	config.Producer.Flush.Frequency = 500 * time.Millisecond // Flush batches every 500ms
+	config.Producer.RequiredAcks = sarama.WaitForLocal
+	config.Producer.Compression = sarama.CompressionSnappy
+	config.Producer.Flush.Frequency = 500 * time.Millisecond
+	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
 	producer, err := sarama.NewAsyncProducer(s.brokers, config)
 	if err != nil {
 		return errors.Wrap(err, "failed to start Sarama producer")
 	}
 	s.producer = producer
+
+	lgr := log.New(os.Stdout, "[custom] ", log.LstdFlags)
+
 	go func() {
 		for range producer.Successes() {
-			s.errors = []error{}
+			// s.errors = []error{}
+			s.successCount++
 		}
 	}()
 	go func() {
 		for err := range producer.Errors() {
 			s.errors = append(s.errors, err)
-			s.Logger.Warnln("Failed to write access log entry:", err)
+			lgr.Println("Logrus failed to write access log entry:", err)
+			s.Logger.Println("Failed to write access log entry:", err)
 		}
 	}()
 	return nil
 }
 
 // Stop kafka service
-func (s *KafkaService) Stop() {
+func (s *CustomService) Stop() {
 	err := s.producer.Close()
 	if err != nil {
 		s.Logger.Warnln(err)
@@ -90,9 +102,9 @@ func (s *KafkaService) Stop() {
 	return
 }
 
-func (s *KafkaService) Produce(message string, output *string) error {
-	if len(s.errors) >= MaxFails {
-		err := fmt.Errorf("kafka delivery errors %s > %s: %s", len(s.errors), MaxFails, s.errors[0])
+func (s *CustomService) Produce(message string, output *string) error {
+	if len(s.errors) > MaxFails {
+		err := fmt.Errorf("kafka delivery errors %d > %d: %s", len(s.errors), MaxFails, s.errors[0])
 		s.Logger.Warnln(err)
 		return err
 	}
@@ -102,5 +114,10 @@ func (s *KafkaService) Produce(message string, output *string) error {
 		Key:   sarama.ByteEncoder(h.Sum([]byte(message))),
 		Value: sarama.StringEncoder(message),
 	}
+	*output = fmt.Sprintf(
+		"Failure:%d, Success:%d",
+		len(s.errors),
+		s.successCount,
+	)
 	return nil
 }

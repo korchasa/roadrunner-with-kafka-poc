@@ -10,8 +10,7 @@ RUN apk add --no-cache --virtual .build-deps \
 RUN mkdir build
 COPY ./runner /build
 WORKDIR /build
-
-RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -mod vendor -o runner .
+RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -mod vendor -o runner .
 
 
 FROM alpine:3.9
@@ -26,4 +25,4 @@ COPY ./php ./php
 COPY ./runner/.rr.yml .
 COPY ./runner/php.ini /etc/php7/php.ini
 EXPOSE 8080
-CMD ./runner serve -v -d
+CMD ./runner serve -v
