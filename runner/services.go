@@ -8,7 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spiral/roadrunner/service"
 	"github.com/spiral/roadrunner/service/rpc"
-	"strings"
 	"time"
 	"log"
 	"os"
@@ -21,9 +20,10 @@ const MaxFails = 100
 
 // CustomConfig for service
 type CustomConfig struct {
-	Brokers string
-	Topic   string
-	Ack     uint
+	Kafka struct {
+		Host string
+		Topic   string
+	}
 }
 
 // Hydrate config instance from .rr.* content
@@ -33,8 +33,7 @@ func (c *CustomConfig) Hydrate(cfg service.Config) error {
 
 // CustomService _
 type CustomService struct {
-	topic    string
-	brokers  []string
+	conf *CustomConfig
 	producer sarama.AsyncProducer
 	errors []error
 	successCount int
@@ -43,19 +42,13 @@ type CustomService struct {
 
 // Init service
 func (s *CustomService) Init(r *rpc.Service, cfg *CustomConfig) (ok bool, err error) {
-
-	// sarama.Logger = s.Logger
-
-	s.brokers = strings.Split(cfg.Brokers, ",")
-	s.Logger.Printf("Kafka brokers: %s", strings.Join(s.brokers, ", "))
-	s.topic = cfg.Topic
-
+	sarama.Logger = s.Logger
+	s.Logger.Println("Config:", cfg)
+	s.conf = cfg
 	err = r.Register("kafka", s)
-
 	if err != nil {
 		return false, err
 	}
-
 	return true, nil
 }
 
@@ -69,7 +62,7 @@ func (s *CustomService) Serve() error {
 	config.Producer.Flush.Frequency = 500 * time.Millisecond
 	config.Producer.Return.Successes = true
 	config.Producer.Return.Errors = true
-	producer, err := sarama.NewAsyncProducer(s.brokers, config)
+	producer, err := sarama.NewAsyncProducer([]string{s.conf.Kafka.Host}, config)
 	if err != nil {
 		return errors.Wrap(err, "failed to start Sarama producer")
 	}
@@ -110,7 +103,7 @@ func (s *CustomService) Produce(message string, output *string) error {
 	}
 	h := md5.New()
 	s.producer.Input() <- &sarama.ProducerMessage{
-		Topic: s.topic,
+		Topic: s.conf.Kafka.Topic,
 		Key:   sarama.ByteEncoder(h.Sum([]byte(message))),
 		Value: sarama.StringEncoder(message),
 	}
